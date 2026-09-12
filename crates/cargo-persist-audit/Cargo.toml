@@ -1,0 +1,18 @@
+[package]
+name = "cargo-persist-audit"
+description = "cargo subcommand: `cargo persist-audit` - static analysis for Soroban storage-lifecycle (TTL/archival) bugs"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[[bin]]
+name = "cargo-persist-audit"
+path = "src/main.rs"
+
+[dependencies]
+persist-analyzer = { path = "../persist-analyzer", version = "0.1.0" }
+clap = { version = "4", features = ["derive"] }
