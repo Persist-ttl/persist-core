@@ -37,7 +37,10 @@ pub fn detect(file_path: &str, model: &FileModel) -> Vec<Finding> {
     // function (e.g. a dedicated `bump()` method) should still count.
     let mut by_group: HashMap<String, Vec<&crate::model::StorageOp>> = HashMap::new();
     for op in &model.ops {
-        let group = op.impl_name.clone().unwrap_or_else(|| "<free-functions>".to_string());
+        let group = op
+            .impl_name
+            .clone()
+            .unwrap_or_else(|| "<free-functions>".to_string());
         by_group.entry(group).or_default().push(op);
     }
 

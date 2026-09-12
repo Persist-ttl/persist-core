@@ -57,7 +57,11 @@ pub fn analyze_path(path: &Path, config: &Config) -> Result<Report, AnalyzeError
 
     if path.is_file() {
         let source = std::fs::read_to_string(path)?;
-        findings.extend(analyze_source(&path.display().to_string(), &source, config)?);
+        findings.extend(analyze_source(
+            &path.display().to_string(),
+            &source,
+            config,
+        )?);
         return Ok(Report::from_findings(findings));
     }
 

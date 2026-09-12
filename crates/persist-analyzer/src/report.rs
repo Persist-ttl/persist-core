@@ -102,7 +102,7 @@ impl Report {
             }
         }
 
-        let score = 100u32.saturating_sub(deductions).max(0);
+        let score = 100u32.saturating_sub(deductions);
 
         Report {
             findings,

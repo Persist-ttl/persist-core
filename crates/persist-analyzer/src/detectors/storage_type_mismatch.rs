@@ -20,17 +20,21 @@ pub const INFO: DetectorInfo = DetectorInfo {
 };
 
 const ADMIN_LIKE: &[&str] = &[
-    "admin", "config", "owner", "paused", "initialized", "fee", "treasury", "governance",
+    "admin",
+    "config",
+    "owner",
+    "paused",
+    "initialized",
+    "fee",
+    "treasury",
+    "governance",
 ];
 
 const USER_LIKE: &[&str] = &["balance", "allowance", "user", "account", "holder", "nonce"];
 
 fn contains_keyword(haystack: &str, keywords: &'static [&'static str]) -> Option<&'static str> {
     let lower = haystack.to_lowercase();
-    keywords
-        .iter()
-        .find(|kw| lower.contains(*kw))
-        .map(|kw| *kw)
+    keywords.iter().find(|kw| lower.contains(*kw)).copied()
 }
 
 pub fn detect(file_path: &str, model: &FileModel) -> Vec<Finding> {
@@ -78,9 +82,7 @@ pub fn detect(file_path: &str, model: &FileModel) -> Vec<Finding> {
                             "Key `{}` in `{}()` looks like per-user data (matched `{}`) but is \
                              stored in Instance storage, which doesn't scale per-user and ties \
                              every user's data to one shared TTL.",
-                            key,
-                            op.fn_name,
-                            kw,
+                            key, op.fn_name, kw,
                         ),
                         file: file_path.to_string(),
                         line: op.line,

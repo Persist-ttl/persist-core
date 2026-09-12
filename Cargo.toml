@@ -4,6 +4,11 @@ members = [
     "crates/persist-analyzer",
     "crates/cargo-persist-audit",
 ]
+# test-cases/ is its own nested Cargo workspace (each detector's
+# vulnerable/fixed pair is a standalone example contract with its own
+# soroban-sdk dependency) so it doesn't couple the CLI's own build/lockfile
+# to soroban-sdk.
+exclude = ["test-cases"]
 
 [workspace.package]
 version = "0.1.0"

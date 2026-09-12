@@ -190,7 +190,11 @@ impl<'ast> Visit<'ast> for Collector {
                     kind,
                     impl_name: self.current_impl(),
                     fn_name: self.current_fn(),
-                    via: if method == "unwrap" { "unwrap" } else { "expect" },
+                    via: if method == "unwrap" {
+                        "unwrap"
+                    } else {
+                        "expect"
+                    },
                     line,
                     column,
                 });

@@ -31,7 +31,10 @@ pub fn render(report: &Report) -> String {
     let mut out = String::new();
 
     if report.findings.is_empty() {
-        out.push_str(&format!("{}\n", "No storage-lifecycle issues found.".green().bold()));
+        out.push_str(&format!(
+            "{}\n",
+            "No storage-lifecycle issues found.".green().bold()
+        ));
     } else {
         for finding in &report.findings {
             out.push('\n');
