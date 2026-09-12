@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/persist-analyzer",
+    "crates/cargo-persist-audit",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Persist Maintainers"]
+license = "MIT"
+repository = "https://github.com/Persist-ttl/persist-core"
+keywords = ["soroban", "stellar", "security", "static-analysis", "smart-contracts"]
+categories = ["development-tools", "command-line-utilities"]
