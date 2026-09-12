@@ -8,11 +8,55 @@ pub mod report;
 pub mod reporters;
 
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 pub use detectors::Config;
 pub use report::{Finding, Report, Severity};
 pub use reporters::OutputFormat;
+
+/// Directory names (case-insensitive) that mean "test code" by Rust or
+/// common Soroban convention, skipped by default during a directory scan.
+const TEST_DIR_NAMES: &[&str] = &[
+    "tests",
+    "test-suites",
+    "test_suites",
+    "testsuite",
+    "test-suite",
+    "test-cases",
+    "test_cases",
+];
+
+/// File stems (case-insensitive, extension stripped) that mean "test code"
+/// on their own, even outside one of `TEST_DIR_NAMES` (e.g. a `test.rs`
+/// unit-test module sitting next to `contract.rs`).
+const TEST_FILE_STEMS: &[&str] = &["test", "tests", "testutils", "test_utils"];
+
+/// True if `rel_path` (relative to the scan root) looks like test code by
+/// convention: https://github.com/Persist-ttl/persist-core/issues/5.
+fn is_test_path(rel_path: &Path) -> bool {
+    for component in rel_path.components() {
+        if let Component::Normal(name) = component {
+            if let Some(name) = name.to_str() {
+                if TEST_DIR_NAMES.contains(&name.to_ascii_lowercase().as_str()) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if let Some(stem) = rel_path.file_stem().and_then(|s| s.to_str()) {
+        let lower = stem.to_ascii_lowercase();
+        if TEST_FILE_STEMS.contains(&lower.as_str())
+            || lower.starts_with("test_")
+            || lower.ends_with("_test")
+            || lower.ends_with("_tests")
+        {
+            return true;
+        }
+    }
+
+    false
+}
 
 /// The nearest ancestor directory containing a `Cargo.toml`, used to scope
 /// cross-file detectors like `missing-ttl-extension` to "the same contract"
@@ -72,11 +116,13 @@ pub fn analyze_source(
 }
 
 /// Analyzes a single file or recursively walks a directory for `*.rs`
-/// files (skipping `target/` build output), returning a combined report.
+/// files, returning a combined report.
 ///
-/// `missing-ttl-extension` is run once per Cargo package (not once per
-/// file), so an `extend_ttl` call in one file counts for a write in a
-/// sibling file of the same contract.
+/// Directory scans skip `target/` build output and, by default (see
+/// `Config::exclude_tests`), conventional test locations. `missing-ttl-extension`
+/// is run once per Cargo package (not once per file), so an `extend_ttl`
+/// call in one file counts for a write in a sibling file of the same
+/// contract.
 pub fn analyze_path(path: &Path, config: &Config) -> Result<Report, AnalyzeError> {
     if path.is_file() {
         let source = std::fs::read_to_string(path)?;
@@ -90,7 +136,16 @@ pub fn analyze_path(path: &Path, config: &Config) -> Result<Report, AnalyzeError
 
     for entry in walkdir::WalkDir::new(path)
         .into_iter()
-        .filter_entry(|e| e.file_name() != "target")
+        .filter_entry(|e| {
+            if e.file_name() == "target" {
+                return false;
+            }
+            if !config.exclude_tests {
+                return true;
+            }
+            let rel = e.path().strip_prefix(path).unwrap_or_else(|_| e.path());
+            !is_test_path(rel)
+        })
         .filter_map(|e| e.ok())
     {
         let p = entry.path();

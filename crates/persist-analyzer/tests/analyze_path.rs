@@ -1,6 +1,8 @@
-//! Integration tests for `analyze_path`'s package-scoped cross-file
-//! awareness for `missing-ttl-extension`
-//! (https://github.com/Persist-ttl/persist-core/issues/4).
+//! Integration tests for `analyze_path`'s directory-scan behavior:
+//! - package-scoped cross-file awareness for `missing-ttl-extension`
+//!   (https://github.com/Persist-ttl/persist-core/issues/4)
+//! - excluding conventional test locations by default
+//!   (https://github.com/Persist-ttl/persist-core/issues/5)
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -128,4 +130,59 @@ fn different_packages_do_not_share_extend_ttl_calls() {
         report.findings
     );
     assert!(missing_ttl[0].file.contains("pkg-a"));
+}
+
+#[test]
+fn test_directories_and_files_are_excluded_by_default() {
+    let dir = tempdir();
+    fs::write(dir.path().join("Cargo.toml"), "[package]\nname = \"c\"\n").unwrap();
+
+    // A real bug, but only reachable from test-only code.
+    write(
+        dir.path(),
+        "tests/it.rs",
+        r#"
+            fn some_test() {
+                env.storage().persistent().set(&k, &v);
+            }
+        "#,
+    );
+    write(
+        dir.path(),
+        "src/test.rs",
+        r#"
+            fn helper() {
+                env.storage().persistent().set(&k, &v);
+            }
+        "#,
+    );
+    write(
+        dir.path(),
+        "test-suites/tests/scenario.rs",
+        r#"
+            fn scenario() {
+                env.storage().persistent().set(&k, &v);
+            }
+        "#,
+    );
+
+    let report = analyze_path(dir.path(), &Config::default()).unwrap();
+    assert!(
+        report.findings.is_empty(),
+        "expected test-only code to be skipped by default: {:#?}",
+        report.findings
+    );
+
+    let report_with_tests = analyze_path(
+        dir.path(),
+        &Config {
+            exclude_tests: false,
+            ..Config::default()
+        },
+    )
+    .unwrap();
+    assert!(
+        !report_with_tests.findings.is_empty(),
+        "expected --include-tests to still scan test code"
+    );
 }

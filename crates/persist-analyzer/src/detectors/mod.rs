@@ -14,12 +14,18 @@ pub struct Config {
     /// small to be a meaningful safety margin. Defaults to roughly one day
     /// of ledgers at Stellar's ~5s average close time.
     pub min_ttl_threshold: i64,
+    /// When scanning a directory, skip conventional test locations
+    /// (`tests/` dirs, `test.rs`/`*_test.rs` files, etc.) by default - see
+    /// https://github.com/Persist-ttl/persist-core/issues/5. Has no effect
+    /// when the scan target is a single file.
+    pub exclude_tests: bool,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Config {
             min_ttl_threshold: 17_280,
+            exclude_tests: true,
         }
     }
 }

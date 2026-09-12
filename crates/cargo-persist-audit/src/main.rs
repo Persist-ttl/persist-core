@@ -28,6 +28,11 @@ struct Args {
     /// Ledger-count threshold below which an `extend_ttl` call is flagged as too small.
     #[arg(long, default_value_t = 17_280)]
     min_ttl_threshold: i64,
+
+    /// Include conventional test locations (tests/, test-suites/, test.rs, ...)
+    /// in a directory scan instead of skipping them by default.
+    #[arg(long, default_value_t = false)]
+    include_tests: bool,
 }
 
 fn parse_fail_on(value: &str) -> Result<Option<Severity>, String> {
@@ -72,6 +77,7 @@ fn main() -> ExitCode {
 
     let config = Config {
         min_ttl_threshold: args.min_ttl_threshold,
+        exclude_tests: !args.include_tests,
     };
 
     let report = match analyze_path(&args.path, &config) {
