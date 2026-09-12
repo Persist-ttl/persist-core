@@ -40,11 +40,15 @@ pub const ALL_DETECTORS: &[DetectorInfo] = &[
     storage_type_mismatch::INFO,
 ];
 
-/// Runs every detector against one parsed file's model and returns the
-/// combined, unsorted findings.
+/// Runs every detector that only needs a single file's model against one
+/// parsed file, and returns the combined, unsorted findings.
+///
+/// `missing-ttl-extension` is excluded here: it needs to see every file in
+/// the same package to avoid cross-file false positives (issue #4), so
+/// callers run it separately via `missing_ttl_extension::detect_in_package`
+/// once per package instead of once per file.
 pub fn run_all(file_path: &str, model: &FileModel, config: &Config) -> Vec<Finding> {
     let mut findings = Vec::new();
-    findings.extend(missing_ttl_extension::detect(file_path, model));
     findings.extend(insufficient_ttl_margin::detect(file_path, model, config));
     findings.extend(temporary_storage_misuse::detect(file_path, model));
     findings.extend(no_archival_handling::detect(file_path, model));
