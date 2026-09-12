@@ -85,6 +85,16 @@ against real, unmodified upstream Soroban repositories:
   than filed as a GitHub issue:
   [Stellar Discord](https://discord.com/channels/897514728459468821/1548405148215148545).
 
+- **[soroswap/core](https://github.com/soroswap/core)**: `no-archival-handling`
+  fired on ~13 storage reads across `contracts/{factory,pair,router,token}/src`
+  (e.g. `get_factory()`, `get_token_0()`, `admin::read_administrator()`) that
+  `.unwrap()`/`.expect()` a storage `.get()` with no handling for a missing
+  or archived entry. Filed for maintainer review rather than asserted as a
+  confirmed vulnerability, since some of these may be intentionally
+  unreachable given the contracts' current init-order/access-control
+  guarantees:
+  [soroswap/core#217](https://github.com/soroswap/core/issues/217).
+
 ## Output formats
 
 `--format text` (default, colorized terminal output), `json`, `md`
