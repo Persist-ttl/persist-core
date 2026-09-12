@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = [
+    "missing-ttl-extension/vulnerable",
+    "missing-ttl-extension/fixed",
+    "insufficient-ttl-margin/vulnerable",
+    "insufficient-ttl-margin/fixed",
+    "temporary-storage-misuse/vulnerable",
+    "temporary-storage-misuse/fixed",
+    "no-archival-handling/vulnerable",
+    "no-archival-handling/fixed",
+    "storage-type-mismatch/vulnerable",
+    "storage-type-mismatch/fixed",
+]
