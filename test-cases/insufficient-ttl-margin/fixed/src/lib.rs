@@ -12,7 +12,9 @@ pub struct Contract;
 impl Contract {
     pub fn deposit(env: Env, user: Address, amount: i128) {
         env.storage().persistent().set(&user, &amount);
-        env.storage().persistent().extend_ttl(&user, 100_000, 535_680);
+        env.storage()
+            .persistent()
+            .extend_ttl(&user, 100_000, 535_680);
     }
 
     pub fn balance_of(env: Env, user: Address) -> i128 {

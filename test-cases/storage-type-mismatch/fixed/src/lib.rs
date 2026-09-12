@@ -11,7 +11,9 @@ pub struct Contract;
 #[contractimpl]
 impl Contract {
     pub fn set_admin(env: Env, admin: Address) {
-        env.storage().instance().set(&symbol_short!("admin"), &admin);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("admin"), &admin);
     }
 
     pub fn get_admin(env: Env) -> Option<Address> {
