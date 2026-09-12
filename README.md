@@ -64,6 +64,27 @@ Every detector has a paired real, compiling example under
 (`vulnerable/`) and the same contract fixed (`fixed/`) — used both as the
 integration test suite and as executable documentation.
 
+## Real-world validation
+
+Beyond the paired fixtures under `test-cases/`, Persist has been run
+against real, unmodified upstream Soroban repositories:
+
+- **[stellar/soroban-example-dapp](https://github.com/stellar/soroban-example-dapp)**
+  (repo now archived): neither the `crowdfund` nor the `abundance` example
+  contract calls `extend_ttl` anywhere in its source. Specifically:
+  - [`contracts/abundance/src/balance.rs`](https://github.com/stellar/soroban-example-dapp/blob/main/contracts/abundance/src/balance.rs) —
+    `write_balance()` writes Persistent storage that's never extended.
+  - [`contracts/abundance/src/admin.rs`](https://github.com/stellar/soroban-example-dapp/blob/main/contracts/abundance/src/admin.rs) —
+    `write_administrator()` writes Instance storage that's never extended.
+  - [`contracts/crowdfund/src/lib.rs`](https://github.com/stellar/soroban-example-dapp/blob/main/contracts/crowdfund/src/lib.rs) —
+    `initialize()`, `set_user_deposited()`, and `set_recipient_claimed()`
+    all write Instance storage that's never extended.
+
+  Because the repository is archived (issue creation and discussions are
+  both disabled), this was reported to the Stellar dev community rather
+  than filed as a GitHub issue:
+  [Stellar Discord](https://discord.com/channels/897514728459468821/1548405148215148545).
+
 ## Output formats
 
 `--format text` (default, colorized terminal output), `json`, `md`
