@@ -22,6 +22,8 @@ issues — overflow, unsafe unwraps, reentrancy-adjacent patterns — but none
 of them have dedicated detectors for storage-lifecycle correctness. Persist
 exists to fill that gap.
 
+[![asciicast](https://asciinema.org/a/squJtyG1267M01Ws.svg)](https://asciinema.org/a/squJtyG1267M01Ws)
+
 ## Install
 
 ```sh
